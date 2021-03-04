@@ -59,7 +59,6 @@ public:
 	void DeleteRxQp(uint32_t dip, uint16_t pg, uint16_t dport);
 
 	int ReceiveUdp(Ptr<Packet> p, CustomHeader &ch);
-	int ReceiveCnp(Ptr<Packet> p, CustomHeader &ch);
 	int ReceiveAck(Ptr<Packet> p, CustomHeader &ch); // handle both ACK and NACK
 	int Receive(Ptr<Packet> p, CustomHeader &ch); // callback function that the QbbNetDevice should use when receive packets. Only NIC can call this function. And do not call this upon PFC
 
@@ -80,7 +79,6 @@ public:
 	Ptr<Packet> GetNxtPacket(Ptr<RdmaQueuePair> qp); // get next packet to send, inc snd_nxt
 	void PktSent(Ptr<RdmaQueuePair> qp, Ptr<Packet> pkt, Time interframeGap);
 	void UpdateNextAvail(Ptr<RdmaQueuePair> qp, Time interframeGap, uint32_t pkt_size);
-	void ChangeRate(Ptr<RdmaQueuePair> qp, DataRate new_rate);
 	/******************************
 	 * Mellanox's version of DCQCN
 	 *****************************/
@@ -114,42 +112,6 @@ public:
 	void FastRecoveryMlx(Ptr<RdmaQueuePair> q);
 	void ActiveIncreaseMlx(Ptr<RdmaQueuePair> q);
 	void HyperIncreaseMlx(Ptr<RdmaQueuePair> q);
-
-	/***********************
-	 * High Precision CC
-	 ***********************/
-	double m_targetUtil;
-	double m_utilHigh;
-	uint32_t m_miThresh;
-	bool m_multipleRate;
-	bool m_sampleFeedback; // only react to feedback every RTT, or qlen > 0
-	void HandleAckHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
-	void UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react);
-	void UpdateRateHpTest(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react);
-	void FastReactHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
-
-	/**********************
-	 * TIMELY
-	 *********************/
-	double m_tmly_alpha, m_tmly_beta;
-	uint64_t m_tmly_TLow, m_tmly_THigh, m_tmly_minRtt;
-	void HandleAckTimely(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
-	void UpdateRateTimely(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool us);
-	void FastReactTimely(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
-
-	/**********************
-	 * DCTCP
-	 *********************/
-	DataRate m_dctcp_rai;
-	void HandleAckDctcp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
-
-	/*********************
-	 * HPCC-PINT
-	 ********************/
-	uint32_t pint_smpl_thresh;
-	void SetPintSmplThresh(double p);
-	void HandleAckHpPint(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
-	void UpdateRateHpPint(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react);
 };
 
 } /* namespace ns3 */

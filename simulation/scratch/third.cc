@@ -872,15 +872,9 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("RateDecreaseInterval", DoubleValue(rate_decrease_interval));
 			rdmaHw->SetAttribute("MinRate", DataRateValue(DataRate(min_rate)));
 			rdmaHw->SetAttribute("Mtu", UintegerValue(packet_payload_size));
-			rdmaHw->SetAttribute("MiThresh", UintegerValue(mi_thresh));
 			rdmaHw->SetAttribute("VarWin", BooleanValue(var_win));
 			rdmaHw->SetAttribute("FastReact", BooleanValue(fast_react));
-			rdmaHw->SetAttribute("MultiRate", BooleanValue(multi_rate));
-			rdmaHw->SetAttribute("SampleFeedback", BooleanValue(sample_feedback));
-			rdmaHw->SetAttribute("TargetUtil", DoubleValue(u_target));
 			rdmaHw->SetAttribute("RateBound", BooleanValue(rate_bound));
-			rdmaHw->SetAttribute("DctcpRateAI", DataRateValue(DataRate(dctcp_rate_ai)));
-			rdmaHw->SetPintSmplThresh(pint_prob);
 			// create and install RdmaDriver
 			Ptr<RdmaDriver> rdma = CreateObject<RdmaDriver>();
 			Ptr<Node> node = n.Get(i);

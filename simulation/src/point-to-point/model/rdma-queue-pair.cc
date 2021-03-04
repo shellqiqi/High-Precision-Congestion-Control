@@ -29,9 +29,7 @@ RdmaQueuePair::RdmaQueuePair(uint16_t pg, Ipv4Address _sip, Ipv4Address _dip, ui
 	m_size = 0;
 	snd_nxt = snd_una = 0;
 	m_pg = pg;
-	m_ipid = 0;
 	m_win = 0;
-	m_baseRtt = 0;
 	m_max_rate = 0;
 	m_var_win = false;
 	m_rate = 0;
@@ -41,31 +39,6 @@ RdmaQueuePair::RdmaQueuePair(uint16_t pg, Ipv4Address _sip, Ipv4Address _dip, ui
 	mlx.m_first_cnp = true;
 	mlx.m_decrease_cnp_arrived = false;
 	mlx.m_rpTimeStage = 0;
-	hp.m_lastUpdateSeq = 0;
-	for (uint32_t i = 0; i < sizeof(hp.keep) / sizeof(hp.keep[0]); i++)
-		hp.keep[i] = 0;
-	hp.m_incStage = 0;
-	hp.m_lastGap = 0;
-	hp.u = 1;
-	for (uint32_t i = 0; i < IntHeader::maxHop; i++){
-		hp.hopState[i].u = 1;
-		hp.hopState[i].incStage = 0;
-	}
-
-	tmly.m_lastUpdateSeq = 0;
-	tmly.m_incStage = 0;
-	tmly.lastRtt = 0;
-	tmly.rttDiff = 0;
-
-	dctcp.m_lastUpdateSeq = 0;
-	dctcp.m_caState = 0;
-	dctcp.m_highSeq = 0;
-	dctcp.m_alpha = 1;
-	dctcp.m_ecnCnt = 0;
-	dctcp.m_batchSizeOfAlpha = 0;
-
-	hpccPint.m_lastUpdateSeq = 0;
-	hpccPint.m_incStage = 0;
 }
 
 void RdmaQueuePair::SetSize(uint64_t size){
@@ -74,10 +47,6 @@ void RdmaQueuePair::SetSize(uint64_t size){
 
 void RdmaQueuePair::SetWin(uint32_t win){
 	m_win = win;
-}
-
-void RdmaQueuePair::SetBaseRtt(uint64_t baseRtt){
-	m_baseRtt = baseRtt;
 }
 
 void RdmaQueuePair::SetVarWin(bool v){
@@ -136,20 +105,6 @@ uint64_t RdmaQueuePair::GetWin(){
 	return w;
 }
 
-uint64_t RdmaQueuePair::HpGetCurWin(){
-	if (m_win == 0)
-		return 0;
-	uint64_t w;
-	if (m_var_win){
-		w = m_win * hp.m_curRate.GetBitRate() / m_max_rate.GetBitRate();
-		if (w == 0)
-			w = 1; // must > 0
-	}else{
-		w = m_win;
-	}
-	return w;
-}
-
 bool RdmaQueuePair::IsFinished(){
 	return snd_una >= m_size;
 }
@@ -167,7 +122,6 @@ TypeId RdmaRxQueuePair::GetTypeId (void)
 
 RdmaRxQueuePair::RdmaRxQueuePair(){
 	sip = dip = sport = dport = 0;
-	m_ipid = 0;
 	ReceiverNextExpectedSeq = 0;
 	m_nackTimer = Time(0);
 	m_milestone_rx = 0;
